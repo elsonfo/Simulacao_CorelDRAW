@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VectorClass - Simulador de Desenho Vetorial</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="left-panel" aria-label="Ferramentas">
+        <div class="brand">
+          <span class="brand-mark">VC</span>
+          <div>
+            <strong>VectorClass</strong>
+            <small>Nivelamento de informática</small>
+          </div>
+        </div>
+
+        <section class="tool-group">
+          <h2>Ferramentas</h2>
+          <div class="tool-grid">
+            <button class="tool active" data-tool="select" title="Selecionar">↖</button>
+            <button class="tool" data-tool="rect" title="Retângulo">▭</button>
+            <button class="tool" data-tool="ellipse" title="Elipse">◯</button>
+            <button class="tool" data-tool="line" title="Linha">╱</button>
+            <button class="tool" data-tool="pen" title="Desenho livre">✎</button>
+            <button class="tool" data-tool="text" title="Texto">T</button>
+          </div>
+        </section>
+
+        <section class="tool-group">
+          <h2>Aparência</h2>
+          <label>
+            Preenchimento
+            <input id="fillColor" type="color" value="#32a852" />
+          </label>
+          <label>
+            Contorno
+            <input id="strokeColor" type="color" value="#1e293b" />
+          </label>
+          <label>
+            Espessura
+            <input id="strokeWidth" type="range" min="1" max="18" value="3" />
+          </label>
+          <label>
+            Tamanho do texto
+            <input id="fontSize" type="range" min="14" max="72" value="28" />
+          </label>
+        </section>
+
+        <section class="tool-group">
+          <h2>Ações</h2>
+          <div class="action-grid">
+            <button id="duplicateBtn" title="Duplicar selecionado">⧉</button>
+            <button id="deleteBtn" title="Apagar selecionado">⌫</button>
+            <button id="frontBtn" title="Trazer para frente">⇧</button>
+            <button id="backBtn" title="Enviar para trás">⇩</button>
+            <button id="gridBtn" title="Mostrar grade" class="active">#</button>
+            <button id="clearBtn" title="Limpar página">×</button>
+          </div>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="doc-title">
+            <label for="projectName">Projeto</label>
+            <input id="projectName" value="Cartaz da turma" />
+          </div>
+          <div class="top-actions">
+            <button id="saveBtn">Salvar</button>
+            <button id="loadBtn">Abrir</button>
+            <button id="exportSvgBtn">SVG</button>
+            <button id="exportPngBtn">PNG</button>
+            <input id="fileInput" type="file" accept="application/json" hidden />
+          </div>
+        </header>
+
+        <section class="stage-wrap" aria-label="Área de desenho">
+          <svg id="stage" viewBox="0 0 960 620" role="img" aria-label="Prancheta de desenho vetorial">
+            <defs>
+              <pattern id="gridPattern" width="24" height="24" patternUnits="userSpaceOnUse">
+                <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#d8dee8" stroke-width="1" />
+              </pattern>
+            </defs>
+            <rect id="pageBg" width="960" height="620" fill="#ffffff" />
+            <rect id="gridLayer" width="960" height="620" fill="url(#gridPattern)" />
+            <g id="drawingLayer"></g>
+            <rect id="selectionBox" class="selection-box" x="0" y="0" width="0" height="0" hidden />
+          </svg>
+        </section>
+
+        <footer class="statusbar">
+          <span id="statusText">Pronto para desenhar.</span>
+          <span id="objectCount">0 objetos</span>
+        </footer>
+      </main>
+
+      <aside class="right-panel">
+        <section class="panel-block">
+          <div class="panel-heading">
+            <h2>Aulas</h2>
+            <button id="nextLessonBtn">Próxima</button>
+          </div>
+          <ol id="lessonList" class="lesson-list"></ol>
+        </section>
+
+        <section class="panel-block">
+          <h2>Camadas</h2>
+          <div id="layers" class="layers"></div>
+        </section>
+
+        <section class="panel-block">
+          <h2>Guia rápido</h2>
+          <div class="quick-guide">
+            <p><strong>Objetivo:</strong> praticar mouse, seleção, formatos, texto, cores, organização visual e exportação.</p>
+            <p><strong>Atividade sugerida:</strong> criar um cartaz com título, ícone simples e três formas coloridas alinhadas.</p>
+            <p><strong>GitHub:</strong> publique como repositório e ative GitHub Pages para abrir em qualquer navegador da escola.</p>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
