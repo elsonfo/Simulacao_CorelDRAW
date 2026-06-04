@@ -6,8 +6,9 @@ Sistema web simples, inspirado em ferramentas como CorelDRAW, para aulas de nive
 
 1. Abra `index.html` em qualquer navegador moderno.
 2. Use as ferramentas laterais para criar formas, linhas, desenho livre e texto.
-3. Oriente os alunos pelas atividades do painel **Aulas**.
-4. Exporte o trabalho em `SVG`, `PNG` ou salve o projeto em `JSON`.
+3. Use **Modelos de roupa** para inserir camiseta, vestido, calça, saia, corpo guia ou etiqueta.
+4. Oriente os alunos pelas atividades do painel **Aulas**.
+5. Exporte o trabalho em `SVG`, `PNG` ou salve o projeto em `JSON`.
 
 ## Recursos
 
@@ -15,9 +16,19 @@ Sistema web simples, inspirado em ferramentas como CorelDRAW, para aulas de nive
 - Alteração de preenchimento, contorno, espessura e tamanho do texto.
 - Duplicar, apagar, enviar para frente, enviar para trás e grade visual.
 - Painel de camadas para selecionar objetos.
+- Modelos prontos de roupas para alunos iniciantes personalizarem.
 - Exportação em SVG e PNG.
 - Salvamento e abertura de projetos em JSON.
 - Interface responsiva para computadores e notebooks da escola.
+
+## Atividade de moda para iniciantes
+
+1. Clique em **Camiseta** ou **Vestido**.
+2. Selecione o modelo na prancheta.
+3. Altere preenchimento, contorno e espessura.
+4. Insira uma **Etiqueta** e edite o texto se desejar.
+5. Use a ferramenta **Texto** para colocar nome da turma, marca ou tema.
+6. Exporte em `PNG` para entregar a atividade ou em `SVG` para continuar editando.
 
 ## Publicação no GitHub
 

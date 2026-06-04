@@ -14,11 +14,11 @@ const fileInput = document.getElementById("fileInput");
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const lessons = [
-  "Selecionar e mover objetos com precisão.",
-  "Criar retângulos e elipses para montar ícones.",
-  "Aplicar preenchimento, contorno e espessura.",
-  "Inserir texto e ajustar tamanho para um cartaz.",
-  "Organizar camadas, duplicar e exportar o projeto."
+  "Inserir um modelo de roupa e mover na prancheta.",
+  "Trocar preenchimento e contorno para testar combinações.",
+  "Adicionar texto com nome da turma ou da marca.",
+  "Duplicar detalhes, etiquetas e formas decorativas.",
+  "Exportar o desenho final em PNG ou SVG."
 ];
 
 let currentTool = "select";
@@ -69,13 +69,23 @@ function objectName(node) {
     ellipse: "Elipse",
     line: "Linha",
     path: "Livre",
-    text: "Texto"
+    text: "Texto",
+    g: node.dataset.name || "Modelo"
   };
   return names[node.tagName] || "Objeto";
 }
 
+function directDrawingObject(node) {
+  let current = node;
+  while (current && current !== svg) {
+    if (current.parentNode === drawingLayer) return current;
+    current = current.parentNode;
+  }
+  return null;
+}
+
 function selectNode(node) {
-  selected = node && node.parentNode === drawingLayer ? node : null;
+  selected = node ? directDrawingObject(node) : null;
   updateSelectionBox();
   updateLayers();
   setStatus(selected ? `${objectName(selected)} selecionado.` : "Nenhum objeto selecionado.");
@@ -195,6 +205,18 @@ function moveNode(node, dx, dy) {
 
 function applyCurrentStyle() {
   if (!selected) return;
+  if (selected.tagName === "g") {
+    selected.querySelectorAll("[data-colorable~='fill']").forEach((node) => {
+      node.setAttribute("fill", fillColor.value);
+    });
+    selected.querySelectorAll("[data-colorable~='stroke']").forEach((node) => {
+      node.setAttribute("stroke", strokeColor.value);
+      node.setAttribute("stroke-width", strokeWidth.value);
+    });
+    updateSelectionBox();
+    updateLayers();
+    return;
+  }
   if (selected.tagName !== "line" && selected.tagName !== "path") {
     selected.setAttribute("fill", fillColor.value);
   }
@@ -223,10 +245,133 @@ function addText(point) {
   addNode(node);
 }
 
+function addTemplate(type) {
+  const group = makeSvgElement("g", {
+    transform: "translate(300 110)",
+    "data-name": templateName(type)
+  });
+  templateParts(type).forEach((part) => group.appendChild(part));
+  addNode(group);
+  setTool("select");
+  setStatus(`${templateName(type)} inserido. Use as cores para personalizar.`);
+}
+
+function templateName(type) {
+  const names = {
+    shirt: "Camiseta",
+    dress: "Vestido",
+    pants: "Calça",
+    skirt: "Saia",
+    body: "Corpo guia",
+    label: "Etiqueta"
+  };
+  return names[type] || "Modelo";
+}
+
+function templatePath(d, fill = fillColor.value, stroke = strokeColor.value, colorable) {
+  return makeSvgElement("path", {
+    d,
+    fill,
+    stroke,
+    "stroke-width": strokeWidth.value,
+    "stroke-linejoin": "round",
+    "stroke-linecap": "round",
+    "data-colorable": colorable || (fill === "none" ? "stroke" : "fill stroke")
+  });
+}
+
+function templateLine(x1, y1, x2, y2, dashed = false) {
+  const line = makeSvgElement("line", {
+    x1,
+    y1,
+    x2,
+    y2,
+    stroke: strokeColor.value,
+    "stroke-width": Math.max(1, Number(strokeWidth.value) - 1),
+    "stroke-linecap": "round",
+    "data-colorable": "stroke"
+  });
+  if (dashed) line.setAttribute("stroke-dasharray", "8 7");
+  return line;
+}
+
+function templateText(text, x, y, size = 24) {
+  const node = makeSvgElement("text", {
+    x,
+    y,
+    fill: strokeColor.value,
+    stroke: "none",
+    "font-size": size,
+    "font-family": "Arial, Helvetica, sans-serif",
+    "font-weight": "700",
+    "text-anchor": "middle",
+    "data-colorable": "fill"
+  });
+  node.textContent = text;
+  return node;
+}
+
+function templateParts(type) {
+  if (type === "shirt") {
+    return [
+      templatePath("M120 38 L176 64 L214 118 L176 146 L160 116 L160 264 L64 264 L64 116 L48 146 L10 118 L48 64 Z"),
+      templatePath("M88 38 Q112 72 144 38", "#ffffff", strokeColor.value, "stroke"),
+      templateLine(64, 116, 160, 116),
+      templateLine(88, 264, 88, 174, true),
+      templateLine(136, 264, 136, 174, true)
+    ];
+  }
+  if (type === "dress") {
+    return [
+      templatePath("M96 34 L146 34 L172 102 L202 276 L40 276 L70 102 Z"),
+      templatePath("M100 34 Q120 64 142 34", "#ffffff", strokeColor.value, "stroke"),
+      templateLine(70, 102, 172, 102),
+      templateLine(88, 124, 62, 276, true),
+      templateLine(154, 124, 180, 276, true)
+    ];
+  }
+  if (type === "pants") {
+    return [
+      templatePath("M70 38 L166 38 L184 286 L128 286 L118 130 L106 286 L50 286 Z"),
+      templateLine(70, 84, 166, 84),
+      templateLine(118, 130, 118, 286),
+      templateLine(84, 38, 84, 84, true),
+      templateLine(152, 38, 152, 84, true)
+    ];
+  }
+  if (type === "skirt") {
+    return [
+      templatePath("M72 44 L168 44 L206 250 L34 250 Z"),
+      templateLine(72, 44, 168, 44),
+      templateLine(94, 70, 66, 250, true),
+      templateLine(120, 70, 120, 250, true),
+      templateLine(146, 70, 174, 250, true)
+    ];
+  }
+  if (type === "body") {
+    return [
+      makeSvgElement("ellipse", { cx: 118, cy: 34, rx: 26, ry: 30, fill: "none", stroke: strokeColor.value, "stroke-width": 3, "data-colorable": "stroke" }),
+      templateLine(118, 64, 118, 190, true),
+      templateLine(64, 98, 172, 98, true),
+      templateLine(82, 190, 154, 190, true),
+      templateLine(64, 98, 42, 172, true),
+      templateLine(172, 98, 194, 172, true),
+      templateLine(98, 190, 86, 286, true),
+      templateLine(138, 190, 150, 286, true)
+    ];
+  }
+  return [
+    makeSvgElement("rect", { x: 48, y: 72, width: 160, height: 96, rx: 8, fill: fillColor.value, stroke: strokeColor.value, "stroke-width": strokeWidth.value, "data-colorable": "fill stroke" }),
+    templateText("MINHA MARCA", 128, 128, 20),
+    templateLine(70, 148, 186, 148)
+  ];
+}
+
 svg.addEventListener("pointerdown", (event) => {
   const point = pointerPoint(event);
-  if (event.target.parentNode === drawingLayer && currentTool === "select") {
-    selectNode(event.target);
+  const targetObject = directDrawingObject(event.target);
+  if (targetObject && currentTool === "select") {
+    selectNode(targetObject);
     dragStart = point;
     isDrawing = true;
     return;
@@ -280,6 +425,10 @@ document.querySelectorAll(".tool").forEach((button) => {
 
 [fillColor, strokeColor, strokeWidth, fontSize].forEach((input) => {
   input.addEventListener("input", applyCurrentStyle);
+});
+
+document.querySelectorAll("[data-template]").forEach((button) => {
+  button.addEventListener("click", () => addTemplate(button.dataset.template));
 });
 
 document.getElementById("duplicateBtn").addEventListener("click", () => {

@@ -113,7 +113,8 @@ h2 {
 }
 
 .tool-grid,
-.action-grid {
+.action-grid,
+.template-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
@@ -125,6 +126,18 @@ h2 {
   border-radius: 8px;
   font-weight: 700;
   font-size: 20px;
+}
+
+.template-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.template-grid button {
+  min-height: 42px;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .tool-group label {
