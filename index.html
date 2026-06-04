@@ -47,6 +47,18 @@
             Tamanho do texto
             <input id="fontSize" type="range" min="14" max="72" value="28" />
           </label>
+          <label>
+            Tamanho do objeto
+            <input id="objectScale" type="range" min="40" max="180" value="100" />
+          </label>
+          <label>
+            Altura da peça
+            <input id="objectHeight" type="range" min="35" max="180" value="100" />
+          </label>
+          <label>
+            Rotação em graus
+            <input id="objectRotation" type="range" min="-180" max="180" value="0" />
+          </label>
         </section>
 
         <section class="tool-group">
@@ -56,6 +68,8 @@
             <button id="deleteBtn" title="Apagar selecionado">⌫</button>
             <button id="frontBtn" title="Trazer para frente">⇧</button>
             <button id="backBtn" title="Enviar para trás">⇩</button>
+            <button id="rotateLeftBtn" title="Girar 15 graus para a esquerda">↶</button>
+            <button id="rotateRightBtn" title="Girar 15 graus para a direita">↷</button>
             <button id="gridBtn" title="Mostrar grade" class="active">#</button>
             <button id="clearBtn" title="Limpar página">×</button>
           </div>

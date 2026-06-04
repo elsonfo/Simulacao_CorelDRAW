@@ -26,9 +26,12 @@ Sistema web simples, inspirado em ferramentas como CorelDRAW, para aulas de nive
 1. Clique em **Camiseta** ou **Vestido**.
 2. Selecione o modelo na prancheta.
 3. Altere preenchimento, contorno e espessura.
-4. Insira uma **Etiqueta** e edite o texto se desejar.
-5. Use a ferramenta **Texto** para colocar nome da turma, marca ou tema.
-6. Exporte em `PNG` para entregar a atividade ou em `SVG` para continuar editando.
+4. Use **Tamanho do objeto** para aumentar ou reduzir a peça inteira.
+5. Use **Altura da peça** para encurtar modelos, como transformar uma saia em mini saia.
+6. Use **Rotação em graus** ou os botões de giro para inclinar retângulos e criar faixas, barras, recortes e detalhes.
+7. Insira uma **Etiqueta** e edite o texto se desejar.
+8. Use a ferramenta **Texto** para colocar nome da turma, marca ou tema.
+9. Exporte em `PNG` para entregar a atividade ou em `SVG` para continuar editando.
 
 ## Publicação no GitHub
 

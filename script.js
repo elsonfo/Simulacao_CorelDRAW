@@ -9,6 +9,9 @@ const fillColor = document.getElementById("fillColor");
 const strokeColor = document.getElementById("strokeColor");
 const strokeWidth = document.getElementById("strokeWidth");
 const fontSize = document.getElementById("fontSize");
+const objectScale = document.getElementById("objectScale");
+const objectHeight = document.getElementById("objectHeight");
+const objectRotation = document.getElementById("objectRotation");
 const projectName = document.getElementById("projectName");
 const fileInput = document.getElementById("fileInput");
 
@@ -27,6 +30,7 @@ let currentShape = null;
 let dragStart = null;
 let isDrawing = false;
 let lessonIndex = 0;
+let isSyncingControls = false;
 
 function setStatus(message) {
   statusText.textContent = message;
@@ -86,8 +90,10 @@ function directDrawingObject(node) {
 
 function selectNode(node) {
   selected = node ? directDrawingObject(node) : null;
+  if (selected) initObjectTransform(selected);
   updateSelectionBox();
   updateLayers();
+  syncTransformControls();
   setStatus(selected ? `${objectName(selected)} selecionado.` : "Nenhum objeto selecionado.");
 }
 
@@ -144,7 +150,70 @@ function renderLessons() {
 function addNode(node) {
   node.dataset.id = nextId();
   drawingLayer.appendChild(node);
+  initObjectTransform(node);
   selectNode(node);
+}
+
+function initObjectTransform(node) {
+  if (!node.dataset.x) node.dataset.x = "0";
+  if (!node.dataset.y) node.dataset.y = "0";
+  if (!node.dataset.scale) node.dataset.scale = "1";
+  if (!node.dataset.heightScale) node.dataset.heightScale = "1";
+  if (!node.dataset.rotation) node.dataset.rotation = "0";
+  setObjectTransform(node);
+}
+
+function objectTransformData(node) {
+  return {
+    x: Number(node.dataset.x || 0),
+    y: Number(node.dataset.y || 0),
+    scale: Number(node.dataset.scale || 1),
+    heightScale: Number(node.dataset.heightScale || 1),
+    rotation: Number(node.dataset.rotation || 0)
+  };
+}
+
+function objectCenter(node) {
+  const box = node.getBBox();
+  return {
+    x: box.x + box.width / 2,
+    y: box.y + box.height / 2
+  };
+}
+
+function setObjectTransform(node) {
+  const data = objectTransformData(node);
+  const center = objectCenter(node);
+  const scaleY = data.scale * data.heightScale;
+  node.setAttribute(
+    "transform",
+    `translate(${data.x} ${data.y}) rotate(${data.rotation} ${center.x} ${center.y}) translate(${center.x} ${center.y}) scale(${data.scale} ${scaleY}) translate(${-center.x} ${-center.y})`
+  );
+}
+
+function syncTransformControls() {
+  isSyncingControls = true;
+  if (!selected) {
+    objectScale.value = 100;
+    objectHeight.value = 100;
+    objectRotation.value = 0;
+  } else {
+    const data = objectTransformData(selected);
+    objectScale.value = Math.round(data.scale * 100);
+    objectHeight.value = Math.round(data.heightScale * 100);
+    objectRotation.value = Math.round(data.rotation);
+  }
+  isSyncingControls = false;
+}
+
+function applyTransformControls() {
+  if (!selected || isSyncingControls) return;
+  selected.dataset.scale = String(Number(objectScale.value) / 100);
+  selected.dataset.heightScale = String(Number(objectHeight.value) / 100);
+  selected.dataset.rotation = objectRotation.value;
+  setObjectTransform(selected);
+  updateSelectionBox();
+  updateLayers();
 }
 
 function setTool(tool) {
@@ -196,11 +265,10 @@ function updateShape(node, start, point) {
 }
 
 function moveNode(node, dx, dy) {
-  const current = node.transform.baseVal.consolidate();
-  const matrix = current ? current.matrix : svg.createSVGMatrix();
-  const transform = svg.createSVGTransform();
-  transform.setMatrix(matrix.translate(dx, dy));
-  node.transform.baseVal.initialize(transform);
+  initObjectTransform(node);
+  node.dataset.x = String(Number(node.dataset.x || 0) + dx);
+  node.dataset.y = String(Number(node.dataset.y || 0) + dy);
+  setObjectTransform(node);
 }
 
 function applyCurrentStyle() {
@@ -247,9 +315,10 @@ function addText(point) {
 
 function addTemplate(type) {
   const group = makeSvgElement("g", {
-    transform: "translate(300 110)",
     "data-name": templateName(type)
   });
+  group.dataset.x = "300";
+  group.dataset.y = "110";
   templateParts(type).forEach((part) => group.appendChild(part));
   addNode(group);
   setTool("select");
@@ -427,6 +496,10 @@ document.querySelectorAll(".tool").forEach((button) => {
   input.addEventListener("input", applyCurrentStyle);
 });
 
+[objectScale, objectHeight, objectRotation].forEach((input) => {
+  input.addEventListener("input", applyTransformControls);
+});
+
 document.querySelectorAll("[data-template]").forEach((button) => {
   button.addEventListener("click", () => addTemplate(button.dataset.template));
 });
@@ -434,8 +507,9 @@ document.querySelectorAll("[data-template]").forEach((button) => {
 document.getElementById("duplicateBtn").addEventListener("click", () => {
   if (!selected) return;
   const clone = selected.cloneNode(true);
-  moveNode(clone, 24, 24);
   addNode(clone);
+  moveNode(clone, 24, 24);
+  selectNode(clone);
 });
 
 document.getElementById("deleteBtn").addEventListener("click", () => {
@@ -455,6 +529,19 @@ document.getElementById("backBtn").addEventListener("click", () => {
   drawingLayer.insertBefore(selected, drawingLayer.firstChild);
   updateLayers();
 });
+
+function rotateSelectedBy(degrees) {
+  if (!selected) return;
+  const current = Number(selected.dataset.rotation || 0);
+  const next = Math.max(-180, Math.min(180, current + degrees));
+  selected.dataset.rotation = String(next);
+  setObjectTransform(selected);
+  syncTransformControls();
+  updateSelectionBox();
+}
+
+document.getElementById("rotateLeftBtn").addEventListener("click", () => rotateSelectedBy(-15));
+document.getElementById("rotateRightBtn").addEventListener("click", () => rotateSelectedBy(15));
 
 document.getElementById("gridBtn").addEventListener("click", (event) => {
   gridLayer.hidden = !gridLayer.hidden;
